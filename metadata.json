@@ -1,0 +1,7 @@
+{
+  "name": "AgriSurplus AI - Farmer Market Surplus Management & Matcher",
+  "description": "AI-powered demand forecasting, surplus detection, and smart redistribution system connecting farmers with nearby restaurants, hostels, food banks, and bio-value recovery channels.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
