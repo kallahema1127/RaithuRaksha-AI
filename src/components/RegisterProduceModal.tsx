@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, Upload, Sparkles, AlertCircle, Camera, CheckCircle2 } from 'lucide-react';
 import { ProduceItem, ProduceCategory, QualityGrade, MarketContext } from '../types';
+import { fetchVisionAnalysis } from '../services/aiService';
 
 interface RegisterProduceModalProps {
   isOpen: boolean;
@@ -58,21 +59,14 @@ export const RegisterProduceModal: React.FC<RegisterProduceModalProps> = ({
   const triggerAiVisionAnalysis = async (imageBase64: string) => {
     setIsAnalyzingPhoto(true);
     try {
-      const res = await fetch('/api/produce-vision-analyze', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          imageBase64,
-          produceName: name || 'Fresh Farm Produce',
-          category,
-        }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAiAnalysis(data);
-        if (data.qualityGrade && ['Grade A (Premium)', 'Grade B (Standard)', 'Processing/Blemished'].includes(data.qualityGrade)) {
-          setQualityGrade(data.qualityGrade as QualityGrade);
-        }
+      const data = await fetchVisionAnalysis(
+        imageBase64,
+        name || 'Fresh Farm Produce',
+        category
+      );
+      setAiAnalysis(data);
+      if (data.qualityGrade && ['Grade A (Premium)', 'Grade B (Standard)', 'Processing/Blemished'].includes(data.qualityGrade)) {
+        setQualityGrade(data.qualityGrade as QualityGrade);
       }
     } catch (err) {
       console.error('Vision analysis error:', err);
@@ -133,20 +127,26 @@ export const RegisterProduceModal: React.FC<RegisterProduceModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="register-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto"
+    >
       <div className="bg-[#12151b] border border-neutral-800 rounded-xl max-w-2xl w-full p-6 shadow-2xl relative my-8">
         <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
           <div>
-            <h2 className="text-base font-semibold text-white">Register Harvest Lot</h2>
+            <h2 id="register-modal-title" className="text-base font-semibold text-white">Register Harvest Lot</h2>
             <p className="text-xs text-neutral-400 mt-0.5">
               Enter produce details. AI predicts expected market demand, shelf-life, and pre-screens surplus buyers.
             </p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close produce registration dialog"
             className="text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-800 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 

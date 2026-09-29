@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ProduceItem, BuyerRecipient, SurplusMatch } from '../types';
 import { Sparkles, MapPin, Clock, Building2, Utensils, HeartHandshake, CheckCircle2, Send, AlertTriangle, ChevronRight, RefreshCw, SlidersHorizontal } from 'lucide-react';
+import { fetchMatchEvaluation } from '../services/aiService';
 
 interface SurplusMatcherViewProps {
   produceItems: ProduceItem[];
@@ -111,29 +112,18 @@ export const SurplusMatcherView: React.FC<SurplusMatcherViewProps> = ({
     setDispatchedSuccess(false);
 
     try {
-      const res = await fetch('/api/match-evaluator', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          produce: activeProduce,
-          buyers,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        if (data.overallStrategySummary) {
-          setAllocationSummary(data.overallStrategySummary);
-        }
-        if (data.matches && Array.isArray(data.matches)) {
-          const newAllocMap: { [id: string]: number } = {};
-          data.matches.forEach((m: any) => {
-            if (m.buyerId && m.allocatedQuantityKg) {
-              newAllocMap[m.buyerId] = m.allocatedQuantityKg;
-            }
-          });
-          setCustomAllocations(newAllocMap);
-        }
+      const data = await fetchMatchEvaluation(activeProduce, buyers);
+      if (data.overallStrategySummary) {
+        setAllocationSummary(data.overallStrategySummary);
+      }
+      if (data.matches && Array.isArray(data.matches)) {
+        const newAllocMap: { [id: string]: number } = {};
+        data.matches.forEach((m) => {
+          if (m.buyerId && m.allocatedQuantityKg !== undefined) {
+            newAllocMap[m.buyerId] = m.allocatedQuantityKg;
+          }
+        });
+        setCustomAllocations(newAllocMap);
       }
     } catch (e) {
       console.error('Match evaluator error:', e);
@@ -389,6 +379,7 @@ export const SurplusMatcherView: React.FC<SurplusMatcherViewProps> = ({
                               [buyer.id]: Math.max(0, currentAlloc - 1),
                             }))
                           }
+                          aria-label={`Decrease allocation for ${buyer.name}`}
                           className="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-xs text-neutral-300"
                         >
                           -
@@ -398,6 +389,10 @@ export const SurplusMatcherView: React.FC<SurplusMatcherViewProps> = ({
                           min="0"
                           max={Math.min(currentSurplusKg, buyer.dailyDemandCapacityKg)}
                           value={currentAlloc}
+                          aria-label={`Allocated kg for ${buyer.name}`}
+                          aria-valuemin={0}
+                          aria-valuemax={Math.min(currentSurplusKg, buyer.dailyDemandCapacityKg)}
+                          aria-valuenow={currentAlloc}
                           onChange={(e) =>
                             setCustomAllocations((prev) => ({
                               ...prev,
@@ -413,6 +408,7 @@ export const SurplusMatcherView: React.FC<SurplusMatcherViewProps> = ({
                               [buyer.id]: Math.min(currentSurplusKg, currentAlloc + 1),
                             }))
                           }
+                          aria-label={`Increase allocation for ${buyer.name}`}
                           className="px-2 py-0.5 rounded bg-neutral-800 hover:bg-neutral-700 text-xs text-neutral-300"
                         >
                           +

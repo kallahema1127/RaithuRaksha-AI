@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ProduceItem, MarketContext, DemandPredictionResult } from '../types';
 import { TrendingUp, AlertTriangle, CloudSun, Calendar, Sparkles, RefreshCw, BarChart3, ShieldCheck } from 'lucide-react';
+import { fetchDemandForecast } from '../services/aiService';
 
 interface DemandForecastViewProps {
   produceItems: ProduceItem[];
@@ -23,31 +24,16 @@ export const DemandForecastView: React.FC<DemandForecastViewProps> = ({
     setSelectedProduce(item);
     setIsForecasting(true);
     try {
-      const res = await fetch('/api/demand-forecast', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          produce: item,
-          marketContext,
-        }),
+      const data = await fetchDemandForecast(item, marketContext);
+      setForecastResult({
+        produceName: item.name,
+        projectedDemandKg: data.projectedDemandKg,
+        projectedSurplusKg: data.projectedSurplusKg,
+        riskLevel: data.riskLevel,
+        drivers: data.drivers,
+        recommendedAction: data.recommendedAction,
+        suggestedDiscountPercent: data.suggestedDiscountPercent || 25,
       });
-      if (res.ok) {
-        const data = await res.json();
-        setForecastResult({
-          produceName: item.name,
-          projectedDemandKg: data.projectedDemandKg,
-          projectedSurplusKg: data.projectedSurplusKg,
-          riskLevel: data.riskLevel,
-          drivers: data.drivers || {
-            weatherEffect: 'Clear weather brings strong morning foot traffic.',
-            dayEffect: 'Saturday brings peak retail kitchen shoppers.',
-            supplySaturation: 'Standard seasonal harvest levels.',
-            shelfLifeUrgency: 'Leafy greens require timely evening offloading.',
-          },
-          recommendedAction: data.recommendedAction || 'Pre-screen surplus matching before afternoon.',
-          suggestedDiscountPercent: data.suggestedDiscountPercent || 25,
-        });
-      }
     } catch (e) {
       console.error('Forecast error:', e);
     } finally {

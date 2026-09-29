@@ -22,20 +22,26 @@ export const MarketConditionsBar: React.FC<MarketConditionsBarProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="market-modal-title"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-4"
+    >
       <div className="bg-[#12151b] border border-neutral-800 rounded-xl max-w-xl w-full p-6 shadow-2xl relative">
         <div className="flex items-center justify-between pb-4 border-b border-neutral-800">
           <div>
-            <h2 className="text-base font-semibold text-white">Market Environment & Demand Drivers</h2>
+            <h2 id="market-modal-title" className="text-base font-semibold text-white">Market Environment & Demand Drivers</h2>
             <p className="text-xs text-neutral-400 mt-0.5">
               Simulate weather, turnout, and calendar variables to test AI demand and surplus predictions.
             </p>
           </div>
           <button
             onClick={onClose}
+            aria-label="Close market conditions dialog"
             className="text-neutral-400 hover:text-white p-1 rounded-lg hover:bg-neutral-800 transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -104,6 +110,10 @@ export const MarketConditionsBar: React.FC<MarketConditionsBarProps> = ({
               max="160"
               step="5"
               value={marketContext.footfallIndexPercent}
+              aria-label="Footfall index benchmark percent"
+              aria-valuemin={40}
+              aria-valuemax={160}
+              aria-valuenow={marketContext.footfallIndexPercent}
               onChange={(e) =>
                 onUpdateMarketContext({
                   ...marketContext,

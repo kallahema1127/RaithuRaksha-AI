@@ -80,11 +80,12 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onOpenMarketConfig}
             title="Configure Market Weather, Day & Footfall"
+            aria-label={`Market condition settings: ${marketContext.dayOfWeek}, ${marketContext.weather}`}
             className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-xs text-neutral-300 bg-neutral-900 border border-neutral-800 rounded-lg hover:border-neutral-700 transition-colors"
           >
-            <Store className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+            <Store className="w-3.5 h-3.5 text-emerald-400 shrink-0" aria-hidden="true" />
             <span className="truncate max-w-[130px] font-mono">{marketContext.dayOfWeek} · {marketContext.weather.split(' ')[0]}</span>
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
           </button>
 
           {/* Notifications Trigger */}
@@ -92,8 +93,9 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={onOpenNotifications}
             className="relative p-2 text-neutral-400 hover:text-white bg-neutral-900 border border-neutral-800 rounded-lg hover:border-neutral-700 transition-colors"
             title="Surplus Alerts & Direct Buyer Notifications"
+            aria-label={`View notifications, ${unreadCount} unread`}
           >
-            <Bell className="w-4 h-4" />
+            <Bell className="w-4 h-4" aria-hidden="true" />
             {unreadCount > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 bg-emerald-500 text-[10px] font-bold text-neutral-950 rounded-full flex items-center justify-center font-mono">
                 {unreadCount}
@@ -104,9 +106,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* New Produce Registration CTA */}
           <button
             onClick={onOpenRegisterModal}
+            aria-label="List new produce lot"
             className="flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold text-neutral-950 bg-emerald-400 hover:bg-emerald-300 rounded-lg transition-colors shadow-sm whitespace-nowrap"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" aria-hidden="true" />
             <span>List Produce</span>
           </button>
         </div>
